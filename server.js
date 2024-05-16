@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,7 +21,7 @@ const todoSchema = new mongoose.Schema({
 const Todo = mongoose.model('Todo', todoSchema);
 
 app.use(express.json());
-app.use(express.static('public')); // 정적 파일 제공
+app.use(express.static(path.join(__dirname, 'public'))); // 정적 파일 제공
 
 // 할일 목록 조회
 app.get('/todos', async (req, res) => {
@@ -50,7 +51,6 @@ app.post('/todos', async (req, res) => {
   }
 });
 
-// 할일 삭제
 app.delete('/todos/:id', async (req, res) => {
   try {
     const result = await Todo.findByIdAndDelete(req.params.id);
@@ -63,6 +63,11 @@ app.delete('/todos/:id', async (req, res) => {
     console.error('할일 삭제 오류:', error);
     res.status(500).json({ message: error.message });
   }
+});
+
+// 루트 경로 라우트 핸들러 추가
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -5,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // MongoDB 연결 설정
-mongoose.connect('mongodb://localhost:27017/todolist', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -21,7 +22,7 @@ const todoSchema = new mongoose.Schema({
 const Todo = mongoose.model('Todo', todoSchema);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // 정적 파일 제공
+app.use(express.static(path.resolve(__dirname, 'public'))); // 정적 파일 제공
 
 // 할일 목록 조회
 app.get('/todos', async (req, res) => {
@@ -51,6 +52,7 @@ app.post('/todos', async (req, res) => {
   }
 });
 
+// 할일 삭제
 app.delete('/todos/:id', async (req, res) => {
   try {
     const result = await Todo.findByIdAndDelete(req.params.id);
@@ -67,7 +69,7 @@ app.delete('/todos/:id', async (req, res) => {
 
 // 루트 경로 라우트 핸들러 추가
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
